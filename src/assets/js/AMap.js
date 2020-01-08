@@ -1,4 +1,4 @@
-export default function MapLoader() {   // <-- 原作者这里使用的是module.exports
+export default function MapLoader() {
   return new Promise((resolve, reject) => {
     if (window.AMap) {
       resolve(window.AMap)

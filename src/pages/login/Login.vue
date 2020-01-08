@@ -5,11 +5,11 @@
       <div class="loginFrom">
         <img src="../../static/img/logo.png">
         <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" class="ruleForm">
-          <el-form-item label="用户名" prop="name">
+          <el-form-item label="用户名">
             <el-input v-model="ruleForm.name"></el-input>
           </el-form-item>
-          <el-form-item label="密码" prop="pass">
-            <el-input type="password" v-model="ruleForm.pass"></el-input>
+          <el-form-item label="密码">
+            <el-input v-model="ruleForm.pass" type="password"></el-input>
           </el-form-item>
           <el-form-item>
             <el-button type="primary" class="submit" @click="submitForm()">登 录</el-button>
@@ -51,11 +51,11 @@ export default {
     async submitForm() {
       if (this.ruleForm.name == 'admin' && this.ruleForm.pass == '123456') {
         const api = this.api + '/login'
-        const data = await this.$http.get(api)
-        this.$store.commit('settoken', data.data.data.token)
-        if (data.data.data.code == 0) {
-          this.$router.replace({ path: '/index' })
-        }
+        //const data = await this.$http.get(api)
+        //this.$store.commit('settoken', data.data.data.token)
+        //if (data.data.data.code == 0) {
+        this.$router.replace({ path: '/home' })
+        //}
       } else {
         alert('该用户不存在,请即时联系管理人员')
       }

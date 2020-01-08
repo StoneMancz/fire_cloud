@@ -1,19 +1,16 @@
 <template>
   <div>
-    <Header></Header>
-    <Aside></Aside>
-    <Main></Main>
+    <Header id="header"></Header>
+    <Main id="main"></Main>
   </div>
 </template>
 <script>
 import Header from '../../common/components/Header';
-import Aside from '../../common/components/Aside';
 import Main from './components/Main';
 export default {
   name: 'index',
   components: {
     Header,
-    Aside,
     Main
   }
 }
@@ -28,4 +25,9 @@ body {
     background-repeat: no-repeat;
     overflow: hidden;
 }
+
+  #app div:first-child:hover + #main{
+      top:110px;
+      transition:1s;
+  }
 </style>

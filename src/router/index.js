@@ -1,7 +1,8 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import Login from '../pages/login/Login';
-import Index from '../pages/home/Index'
+import Index from '../pages/home/Index';
+import FireMonitor from '../pages/fireMonitor/fireMonitoring.vue'
 Vue.use(Router);
 export default new Router({
     routes: [{
@@ -9,11 +10,18 @@ export default new Router({
         name: 'Login',
         component: Login
     },{
-        path: '/index',
-        name: 'Index',
+        path: '/home',
+        name: 'home',
         meta: {
             requireAuth: true
         },
         component: Index
+    },{
+        path: '/Monitor',
+        name: 'FireMonitor',
+        meta: {
+            requireAuth: true
+        },
+        component: FireMonitor
     }]
 })
