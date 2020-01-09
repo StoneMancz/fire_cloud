@@ -18,11 +18,11 @@
         </el-drawer>
         <el-button
         plain @click="open1" 
-        style="margin-top: 5px;margin-right: 10px;">
-        预警警告
+        style="margin-top:5px;margin-right:10px;">
+          预警警告
         </el-button>
-        <el-button type="button" @click="dialogTableVisible = true">报警提示</el-button>
-        <el-dialog title="报警详情" :visible.sync="dialogTableVisible" width="500px">
+        <el-button type="button" style="margin-right: 10px;" @click="dialogTableVisible = true">报警提示</el-button>
+        <el-dialog title="事件详情" :visible.sync="dialogTableVisible" width="500px">
           <el-form ref="form" :model="form" label-width="100px">
             <el-form-item label="事件名称" style="margin-bottom: 0px;">
               <span style="margin-left:50px;">设备结束自检</span>
@@ -40,6 +40,9 @@
               <span style="margin-left:50px;">点型感烟火灾探测器</span>
             </el-form-item>
             <el-form-item label="安装编号" style="margin-bottom: 0px;">
+              <span style="margin-left:50px;">8694050300464338</span>
+            </el-form-item>
+            <el-form-item label="设备编号" style="margin-bottom: 0px;">
               <span style="margin-left:50px;">8694050300464338</span>
             </el-form-item>
             <el-form-item label="所属区域" style="margin-bottom: 0px;">
@@ -67,7 +70,7 @@
   </div>
 </template>
   
-<script>
+<script>  
   export default {
       data(){
           return {
@@ -118,9 +121,9 @@
       },
       methods:{
         open1() {
-           this.$notify({
+            this.$notify({
               title: '预警提示',
-              message:'西佘山-山顶消防水库低液位报警，当前值2.5996米',
+              message:'尊敬的用户位于西佘山-山顶消防水库编号为865820030763135的液位计,发生低液位预警,当前值2.5996米',
               type: 'warning',
               duration: 0
             });

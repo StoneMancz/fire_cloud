@@ -5,10 +5,10 @@
       <div class="loginFrom">
         <img src="../../static/img/logo.png">
         <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" class="ruleForm">
-          <el-form-item label="用户名">
+          <el-form-item label="用户名" prop="name">
             <el-input v-model="ruleForm.name"></el-input>
           </el-form-item>
-          <el-form-item label="密码">
+          <el-form-item label="密码" prop="pass">
             <el-input v-model="ruleForm.pass" type="password"></el-input>
           </el-form-item>
           <el-form-item>
@@ -43,18 +43,18 @@ export default {
           { required: true, message: '请输入用户名', trigger: 'blur' },
           { min: 3, max: 8, message: '长度在 3 到 8 个字符', trigger: 'blur' }
         ],
-        pass: [{ validator: validatePass, trigger: 'blur' }]
+        pass: [{required: true,validator: validatePass, trigger: 'blur' }]
       }
     }
   },
   methods: {
     async submitForm() {
       if (this.ruleForm.name == 'admin' && this.ruleForm.pass == '123456') {
-        const api = this.api + '/login'
-        //const data = await this.$http.get(api)
-        //this.$store.commit('settoken', data.data.data.token)
+        //const api = this.api + '/login'
+        const data = await this.$http.get("/api/login");
+        this.$store.commit('settoken', data.data.token);
         //if (data.data.data.code == 0) {
-        this.$router.replace({ path: '/home' })
+        this.$router.replace({path:'/home'})
         //}
       } else {
         alert('该用户不存在,请即时联系管理人员')

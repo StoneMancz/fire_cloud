@@ -27,23 +27,23 @@ VueAMap.initAMapApiLoader({
 });
 
 //路由守卫
-// router.beforeEach((to, from, next) => {
-//   //无论是刷新还是路由跳转，第一个进入的就是这个路由前置钩子
-//   if (to.meta.requireAuth) {
-//       if (store.state.token) {
-//           next();
-//       } else {
-//           next({
-//               path: '/',
-//               query: {
-//                   redirect: to.fullPath
-//               }
-//           })
-//       }
-//   } else {
-//       next();
-//   }
-// })
+router.beforeEach((to, from, next) => {
+  //无论是刷新还是路由跳转，第一个进入的就是这个路由前置钩子
+  if (to.meta.requireAuth) {
+      if (store.state.token) {
+          next();
+      } else {
+          next({
+              path: '/',
+              query: {
+                  redirect: to.fullPath
+              }
+          })
+      }
+  } else {
+      next();
+  }
+})
 
 new Vue({
   render: h => h(App),

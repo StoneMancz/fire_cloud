@@ -18,7 +18,10 @@
         ref="tree"
         @node-click="clickFn">
       </el-tree>
-      <div style="width: 100%;margin-left:10px;margin-top:300px;" id="qrcode"></div>
+      <div style="width: 100%;margin-left:10px;margin-top:260px;" id="qrcode"></div>
+      <div>
+        <span style="color: white;font-size: 14px;">微信扫一扫，关注智慧消防服务公众号</span>
+      </div>
     </div>
     <div id="mapContent"></div>
     <div id="rightWrap">
@@ -27,19 +30,32 @@
         //设备列表
         <label id="deviceList" @click="drawers = true"></label>
     </div>
+    
     <el-drawer
-      title="事件列表"
       :visible.sync="drawer"
       :direction="direction"
+      :with-header="false"
       size="45%">
+        <div style="font-size:16px;font-size:16px;font-weight:600;margin-top:10px;
+        margin-left:10px;color:#72767B">事件列表</div>
         <el-table
           :data="tableData"
           highlight-current-row
           @current-change="handleCurrentChange"
           style="width: 100%">
           <el-table-column
+            prop="eventTyle"
+            label="事件名称"
+            sortable='true'>
+          </el-table-column>
+          <el-table-column
+            prop="date"
+            sortable
+            label="发生时间">
+          </el-table-column>
+          <el-table-column
             prop="number"
-            label="编号"
+            label="安装编号"
             width="180">
           </el-table-column>
           <el-table-column
@@ -47,27 +63,24 @@
             label="设备名称">
           </el-table-column>
           <el-table-column
-            prop="eventTyle"
-            label="事件类型"
-            sortable='true'>
-          </el-table-column>
-          <el-table-column
-            prop="date"
-            sortable
-            label="时间">
+            prop="area"
+            label="所属区域">
           </el-table-column>
           <el-table-column
             prop="address"
-            label="地址"
-            width="180">
+            label="详细地址">
           </el-table-column>
         </el-table>
     </el-drawer>
+
     <el-drawer
       title="设备列表"
       :visible.sync="drawers"
       :direction="directions"
+      :with-header="false"
       size="45%">
+      <div style="font-size:16px;font-size:16px;font-weight:600;margin-top:10px;
+        margin-left:10px;color:#72767B">设备列表</div>
       <el-table
         :data="deviceTableData"
         highlight-current-row
@@ -75,14 +88,14 @@
         style="width: 100%">
         <el-table-column
           prop="deviceNumber"
-          label="设备编号"
+          label="安装编号"
           width="180">
         </el-table-column>
         <el-table-column
           prop="deviceName"
           label="设备名称"
           sortable
-          width="180">
+          >
         </el-table-column>
         <el-table-column
           prop="currentStatus"
@@ -90,15 +103,20 @@
           label="当前状态">
         </el-table-column>
         <el-table-column
+          prop="area"
+          label="所属区域">
+        </el-table-column>
+        <el-table-column
           prop="address"
-          label="地址"
-          width="180">
+          label="详细地址"
+          width="160"
+         >
         </el-table-column>
       </el-table>
     </el-drawer>
 
-    <el-button type="button" @click="dialogTableVisible = true">报警提示</el-button>
-    <el-dialog title="报警详情" :visible.sync="dialogTableVisible" width="500px">
+    <el-button type="button" @click="dialogTableVisible = true">事件</el-button>
+    <el-dialog title="事件详情" :visible.sync="dialogTableVisible" width="500px">
       <el-form ref="form" :model="form" label-width="100px">
         <el-form-item label="事件名称" style="margin-bottom: 0px;">
           <span style="margin-left:50px;">设备结束自检</span>
@@ -116,6 +134,9 @@
           <span style="margin-left:50px;">点型感烟火灾探测器</span>
         </el-form-item>
         <el-form-item label="安装编号" style="margin-bottom: 0px;">
+          <span style="margin-left:50px;">8694050300464338</span>
+        </el-form-item>
+        <el-form-item label="设备编号" style="margin-bottom: 0px;">
           <span style="margin-left:50px;">8694050300464338</span>
         </el-form-item>
         <el-form-item label="所属区域" style="margin-bottom: 0px;">
@@ -158,16 +179,16 @@ export default {
           children: [{
             id: 4,
             label: '东佘山'
-          },{
-            id: 5,
-            label: '西佘山'
-          },{
-            id: 6,
-            label: '小昆山'
-          },{
-            id: 7,
-            label: '天马山'
-          }]
+            },{
+              id: 5,
+              label: '西佘山'
+            },{
+              id: 6,
+              label: '小昆山'
+            },{
+              id: 7,
+              label: '天马山'
+            }]
         }],
         defaultProps: {
           children: 'children',
@@ -180,49 +201,57 @@ export default {
         tableData:[{
             number: '865820030763135',
             deviceName: '液压计',
+            area:"西佘山",
             address: '西佘山-山顶消防水库',
             eventTyle:'正常',
             date:'2019-12-27 12:00:00'
           }, {
             number: '865820030763135',
             deviceName: '液压计',
+            area:"西佘山",
             address: '东佘山-山顶消防水库',
             eventTyle:'低压报警',
             date:'2019-12-28 12:00:00'
           }, {
             number: '865820030763135',
             deviceName: '液压计',
+            area:"西佘山",
             address: '小昆山-山顶消防水库',
             eventTyle:'高压预警',
             date:'2019-12-29 12:00:00'
           }, {
             number: '865820030763135',
             deviceName: '液压计',
+            area:"西佘山",
             address: '天马山-山顶消防水库',
             eventTyle:'报警',
             date:'2019-12-30 12:00:00'
           }],
         deviceTableData:[{
-        deviceNumber: '865820030763135',
-        deviceName: '液压计',
-        currentStatus: '正常',
-        address:'西佘山-山顶消防水库'
-      }, {
-        deviceNumber: '865820030763135',
-        deviceName: '液压计',
-        currentStatus: '正常',
-        address:'东佘山-山顶消防水库'
-      }, {
-        deviceNumber: '865820030763135',
-        deviceName: '液压计',
-        currentStatus: '正常',
-        address:'小昆山-山顶消防水库'
-      }, {
-        deviceNumber: '865820030763135',
-        deviceName: '液压计',
-        currentStatus: '正常',
-        address:'天马山-山顶消防水库'
-      }]
+          deviceNumber: '865820030763135',
+          deviceName: '液压计',
+          currentStatus: '正常',
+          area:"西佘山",
+          address:'西佘山-山顶消防水库'
+          }, {
+            deviceNumber: '865820030763135',
+            deviceName: '液压计',
+            currentStatus: '正常',
+            area:"西佘山",
+            address:'东佘山-山顶消防水库'
+          }, {
+            deviceNumber: '865820030763135',
+            deviceName: '液压计',
+            currentStatus: '正常',
+            area:"西佘山",
+            address:'小昆山-山顶消防水库'
+          }, {
+            deviceNumber: '865820030763135',
+            deviceName: '液压计',
+            currentStatus: '正常',
+            area:"西佘山",
+            address:'天马山-山顶消防水库'
+          }]
     }
   },
   watch: {
@@ -333,8 +362,8 @@ export default {
     MapLoader().then(
       AMap => {
         this.map = new AMap.Map('mapContent', {
-          center: [121.49917, 31.276063],
-          zoom: 9,
+          center: [121.203894,31.083081],
+          zoom: 15,
           mapStyle:'amap://styles/c6256c6eb832024319be6c13fd549b52'
         })
         const api = this.api + '/qeuryOrgAddressInfo';
