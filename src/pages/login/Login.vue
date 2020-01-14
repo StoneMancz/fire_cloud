@@ -20,6 +20,7 @@
   </div>
 </template>
 <script>
+import qs from 'qs';
 export default {
   data() {
     var validatePass = (rule, value, callback) => {
@@ -32,7 +33,6 @@ export default {
         callback()
       }
     }
-
     return {
       ruleForm: {
         name: '',
@@ -49,16 +49,12 @@ export default {
   },
   methods: {
     async submitForm() {
-      if (this.ruleForm.name == 'admin' && this.ruleForm.pass == '123456') {
-        //const api = this.api + '/login'
-        const data = await this.$http.get("/api/login");
-        this.$store.commit('settoken', data.data.token);
-        //if (data.data.data.code == 0) {
-        this.$router.replace({path:'/home'})
-        //}
-      } else {
-        alert('该用户不存在,请即时联系管理人员')
-      }
+      var data = qs.stringify({'username':this.ruleForm.name,'password':this.ruleForm.pass});
+      this.$http.post("http://192.168.2.103:8060/login",data).
+      then(function (response) {
+        console.log(response);
+
+      })
     }
   }
 }

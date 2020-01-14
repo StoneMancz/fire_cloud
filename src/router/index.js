@@ -2,7 +2,9 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import Login from '../pages/login/Login';
 import Index from '../pages/home/Index';
-import FireMonitor from '../pages/fireMonitor/fireMonitoring.vue'
+import FireMonitor from '../pages/fireMonitor/fireMonitoring.vue';
+import EquipmentManage from '../pages/equipmentManage/Index.vue';
+import PersonMange from '../pages/personnelManag/Index.vue'
 Vue.use(Router);
 export default new Router({
     routes: [{
@@ -23,5 +25,19 @@ export default new Router({
             requireAuth: true
         },
         component: FireMonitor
+    },{
+        path: '/equipmentManage',
+        name: 'EquipmentManage',
+        meta: {
+            requireAuth: true
+        },
+        component: EquipmentManage
+    },{
+        path:"/personnel",
+        name:"PersonnelManagement",
+        meta: {
+            requireAuth: true
+        },
+        component:PersonMange
     }]
 })

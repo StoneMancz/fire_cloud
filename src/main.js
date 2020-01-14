@@ -16,7 +16,6 @@ Vue.prototype.$echarts = echarts
 Vue.use(VueRouter);
 Vue.use(ElementUI);
 Vue.use(VueAMap);
-
 Vue.config.productionTip = false;
 Vue.prototype.$http = axios
 VueAMap.initAMapApiLoader({

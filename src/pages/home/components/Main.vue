@@ -18,11 +18,17 @@
         ref="tree"
         @node-click="clickFn">
       </el-tree>
-      <div style="width: 100%;margin-left:10px;margin-top:260px;" id="qrcode"></div>
-      <div>
-        <span style="color: white;font-size: 14px;">微信扫一扫，关注智慧消防服务公众号</span>
+      
+      <div style="margin-top:240px;">
+        <span style="color:white;font-size:14px;margin-top:10px;">关注微信公众号"智慧消防服务"</span>
       </div>
-    </div>
+      <div style="width: 100%;margin-left:10px;margin-top:20px;" id="qrcode"></div>
+      <div style="margin-top:10px;">
+        <span style="color:white;font-size:14px;margin-top:10px;">
+          扫描二维码关注此区域
+        </span>
+      </div>
+    </div>   
     <div id="mapContent"></div>
     <div id="rightWrap">
         //报警事件列表
@@ -30,7 +36,6 @@
         //设备列表
         <label id="deviceList" @click="drawers = true"></label>
     </div>
-    
     <el-drawer
       :visible.sync="drawer"
       :direction="direction"
@@ -71,10 +76,16 @@
             label="详细地址">
           </el-table-column>
         </el-table>
+        <el-pagination
+          background
+          style="float:right;margin-top:10px;"
+          layout="prev, pager, next"
+          :total="1000">
+        </el-pagination>
     </el-drawer>
 
     <el-drawer
-      title="设备列表"
+       title="设备列表"
       :visible.sync="drawers"
       :direction="directions"
       :with-header="false"
@@ -84,7 +95,7 @@
       <el-table
         :data="deviceTableData"
         highlight-current-row
-      @current-change="deviceListSelect"
+        @current-change="deviceListSelect"
         style="width: 100%">
         <el-table-column
           prop="deviceNumber"
@@ -94,8 +105,7 @@
         <el-table-column
           prop="deviceName"
           label="设备名称"
-          sortable
-          >
+          sortable>
         </el-table-column>
         <el-table-column
           prop="currentStatus"
@@ -109,10 +119,15 @@
         <el-table-column
           prop="address"
           label="详细地址"
-          width="160"
-         >
+          width="160">
         </el-table-column>
       </el-table>
+      <el-pagination
+        background
+        style="float:right;margin-top:10px;"
+        layout="prev, pager, next"
+        :total="1000">
+      </el-pagination>
     </el-drawer>
 
     <el-button type="button" @click="dialogTableVisible = true">事件</el-button>
@@ -146,6 +161,49 @@
           <span style="margin-left:50px;">时亦大厦#9值班室</span>
         </el-form-item>
       </el-form>
+    </el-dialog> 
+
+    <el-dialog title="设备详情" :visible.sync="equipmentDetails"  width="450px">
+      <el-form ref="form" :model="form" label-width="100px">
+        <el-form-item label="设备类型" style="margin-bottom: 0px;">
+          <span style="margin-left:50px;">液位计</span>
+        </el-form-item>
+        <el-form-item label="安装编号" style="margin-bottom: 0px;">
+          <span style="margin-left:50px;">865820030763135</span>
+        </el-form-item>
+        <el-form-item label="设备编号" style="margin-bottom: 0px;">
+          <span style="margin-left:50px;">865820030763135</span>
+        </el-form-item>
+        <el-form-item label="运行状态" style="margin-bottom: 0px;">
+          <span style="margin-left:50px;">正常</span>
+        </el-form-item>
+        <el-form-item label="电池电量" style="margin-bottom: 0px;">
+          <span style="margin-left:50px;">69%</span>
+        </el-form-item>
+        <el-form-item label="所属区域" style="margin-bottom: 0px;">
+          <span style="margin-left:50px;">西佘山</span>
+        </el-form-item>
+        <el-form-item label="详细地址" style="margin-bottom: 0px;">
+          <span style="margin-left:50px;">山顶消防水库</span>
+        </el-form-item>
+        <el-form-item label="当前值" style="margin-bottom: 0px;">
+          <span style="margin-left:50px;">2.3931米</span>
+        </el-form-item>
+        <el-form-item label="上限报警值" style="margin-bottom: 0px;">
+          <span style="margin-left:50px;">2.7米</span>
+        </el-form-item>
+        <el-form-item label="上限预警值" style="margin-bottom: 0px;">
+          <span style="margin-left:50px;">2.6米</span>
+        </el-form-item>
+        <el-form-item label="下限预警值" style="margin-bottom: 0px;">
+          <span style="margin-left:50px;">2.2米</span>
+        </el-form-item>
+        <el-form-item label="下限报警值" style="margin-bottom: 0px;">
+          <span style="margin-left:50px;">2米</span>
+        </el-form-item>
+        <div id="deviceQrcode" style="width:100%;height:180px;margin-left:20px;"></div>
+        <div id="waterWave" style="margin-left:20px;width:400px;height:200px;margin-top:-40px;"></div>
+      </el-form>
     </el-dialog>
   </div>
 </template>
@@ -154,6 +212,7 @@ import {mapState,mapGetters} from 'vuex';
 import $ from 'jquery';
 import MapLoader from '@/assets/js/AMap.js';
 import QRCode  from "qrcodejs2"
+import AreaTree from '../../../common/components/AreaTree'
 export default {
   data() {
     return {
@@ -161,6 +220,7 @@ export default {
       map:'',
       markers: [],
       dialogTableVisible: false,
+      equipmentDetails:false,
       form: {
         name: '',
         region: '',
@@ -172,62 +232,62 @@ export default {
         desc: ''
       },
       link: 'https://baidu.com',
-      filterText: '',
-        data: [{
-          id: 1,
-          label: '松江林场',
-          children: [{
-            id: 4,
-            label: '东佘山'
-            },{
-              id: 5,
-              label: '西佘山'
-            },{
-              id: 6,
-              label: '小昆山'
-            },{
-              id: 7,
-              label: '天马山'
-            }]
+      filterText:'',
+      data: [{
+        id: 1,
+        label: '松江林场',
+        children: [{
+          id: 4,
+          label: '东佘山'
+          },{
+            id: 5,
+            label: '西佘山'
+          },{
+            id: 6,
+            label: '小昆山'
+          },{
+            id: 7,
+            label: '天马山'
+          }]
+      }],
+      defaultProps: {
+        children: 'children',
+        label: 'label'
+      },
+      drawer: false,
+      drawers:false,
+      direction: 'rtl',
+      directions:'rtl',
+      tableData:[{
+          number: '865820030763135',
+          deviceName: '液压计',
+          area:"西佘山",
+          address: '西佘山-山顶消防水库',
+          eventTyle:'正常',
+          date:'2019-12-27 12:00:00'
+        }, {
+          number: '865820030763135',
+          deviceName: '液压计',
+          area:"西佘山",
+          address: '东佘山-山顶消防水库',
+          eventTyle:'低压报警',
+          date:'2019-12-28 12:00:00'
+        }, {
+          number: '865820030763135',
+          deviceName: '液压计',
+          area:"西佘山",
+          address: '小昆山-山顶消防水库',
+          eventTyle:'高压预警',
+          date:'2019-12-29 12:00:00'
+        }, {
+          number: '865820030763135',
+          deviceName: '液压计',
+          area:"西佘山",
+          address: '天马山-山顶消防水库',
+          eventTyle:'报警',
+          date:'2019-12-30 12:00:00'
         }],
-        defaultProps: {
-          children: 'children',
-          label: 'label'
-        },
-        drawer: false,
-        drawers:false,
-        direction: 'rtl',
-        directions:'rtl',
-        tableData:[{
-            number: '865820030763135',
-            deviceName: '液压计',
-            area:"西佘山",
-            address: '西佘山-山顶消防水库',
-            eventTyle:'正常',
-            date:'2019-12-27 12:00:00'
-          }, {
-            number: '865820030763135',
-            deviceName: '液压计',
-            area:"西佘山",
-            address: '东佘山-山顶消防水库',
-            eventTyle:'低压报警',
-            date:'2019-12-28 12:00:00'
-          }, {
-            number: '865820030763135',
-            deviceName: '液压计',
-            area:"西佘山",
-            address: '小昆山-山顶消防水库',
-            eventTyle:'高压预警',
-            date:'2019-12-29 12:00:00'
-          }, {
-            number: '865820030763135',
-            deviceName: '液压计',
-            area:"西佘山",
-            address: '天马山-山顶消防水库',
-            eventTyle:'报警',
-            date:'2019-12-30 12:00:00'
-          }],
-        deviceTableData:[{
+      deviceTableData:[{
           deviceNumber: '865820030763135',
           deviceName: '液压计',
           currentStatus: '正常',
@@ -253,6 +313,8 @@ export default {
             address:'天马山-山顶消防水库'
           }]
     }
+  },
+  components:{
   },
   watch: {
     filterText(val) {
@@ -336,6 +398,10 @@ export default {
       }
     },
     deviceListSelect(val){
+      this.equipmentDetails=true;
+      document.getElementById('deviceQrcode').innerHTML="";
+      this.equipmentQrcode("aaaaa");
+      this.equipmentTrend();
       this.currentRow = val;
       if(val.address=="西佘山-山顶消防水库"){
          this.map.setZoomAndCenter(30,[121.1907584800,31.0944413200]);
@@ -354,6 +420,46 @@ export default {
             height:170,
             text:text
         })
+    },
+    equipmentQrcode(text){
+        let that = this;
+        let qrcode1 = new QRCode('deviceQrcode',{
+            width:170,
+            height:170,
+            text:text
+        })
+    },
+    equipmentTrend(){
+      var myChart = this.$echarts.init(document.getElementById("waterWave"));
+      myChart.setOption({
+        xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: ["2019-12-31 17:13:0", "2019-12-31 17:43:0", "2019-12-31 18:13:0", "2019-12-31 18:45:0", "2019-12-31 19:14:0", "2019-12-31 19:44:0", "2019-12-31 20:15:0", "2019-12-31 20:45:0", "2020-01-2 10:56:0", "2020-01-2 11:28:0", "2020-01-2 11:57:0", "2020-01-2 12:27:0", "2020-01-2 12:59:0", "2020-01-2 13:28:0", "2020-01-2 14:0:0", "2020-01-2 14:29:0", "2020-01-2 15:0:0", "2020-01-2 15:30:0", "2020-01-2 16:0:0", "2020-01-2 16:30:0", "2020-01-2 17:0:0", "2020-01-2 17:32:0"],
+            axisLine:{
+              lineStyle:{
+                color:'#CCCCCC',
+                width:2,//这里是为了突出显示加上的
+              }
+            }},
+        yAxis:{
+          type: 'value',
+          axisLine:{
+            lineStyle:{
+              color:'#CCCCCC',
+              width:2,//这里是为了突出显示加上的
+            }
+          }},
+        series: [{
+	        data: ["2.4574", "2.4566", "2.4558", "2.4552", "2.4546", "2.4539", "2.4533", "2.4525", "2.4017", "2.4011", "2.4003", "2.3998", "2.3992", "2.3984", "2.3978", "2.3970", "2.3964", "2.3957", "2.3951", "2.3943", "2.3935", "2.3931"],
+	        type: 'line',
+			    smooth: true,
+	        areaStyle: {
+	            normal: {
+	                color:"#115F6C"
+	            }
+          }
+        }]});
     }
   },
   mounted() {
@@ -393,7 +499,16 @@ export default {
       e => {
         console.log('地图加载失败', e)
       }
-    )
+    );
+    this.$http.get("http://192.168.2.103:8060/area/org/areas",{
+      headers: {
+          "Authorization":"Bearer"+"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJsaW5jaGFuZyIsImV4cCI6MTU3ODkyMzMwOSwiaWF0IjoxNTc4OTE2MTA5fQ.BeI21YTIdw_kYepj31eaTj7C3z2KwbgG0mYrszrf4XCWbNai9WvmocROHrZWyZgrrqhUCDQahGOnBB8fJR8lHg",
+      }
+    }).then(res =>function(){
+      console.log(res)
+    }).catch(e =>function(){
+      console.log(e);
+    })
   },
   computed: {
     ...mapGetters({
