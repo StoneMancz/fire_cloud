@@ -49,11 +49,17 @@ export default {
   },
   methods: {
     async submitForm() {
+      let this_=this;
       var data = qs.stringify({'username':this.ruleForm.name,'password':this.ruleForm.pass});
-      this.$http.post("http://192.168.2.103:8060/login",data).
+      this.$http.post("http://srv.shine-iot.com:8060/login",data).
       then(function (response) {
-        console.log(response);
-
+        if(response.data.success){
+          this_.$store.commit('settoken',response.data.data.token);
+          localStorage.setItem("accessToken",response.data.data.token);
+          this_.$router.replace({path:'/home'})
+        }else{
+          alert('该用户不存在,请即时联系管理人员')
+        }
       })
     }
   }

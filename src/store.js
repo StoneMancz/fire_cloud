@@ -17,6 +17,9 @@ let store = new Vuex.Store({
   getters: {
     api: state => {
       return state.api;
+    },
+    token:state=>{
+      return state.token;
     }
   }
 })

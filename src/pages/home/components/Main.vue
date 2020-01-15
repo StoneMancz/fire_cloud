@@ -211,8 +211,8 @@
 import {mapState,mapGetters} from 'vuex';
 import $ from 'jquery';
 import MapLoader from '@/assets/js/AMap.js';
-import QRCode  from "qrcodejs2"
-import AreaTree from '../../../common/components/AreaTree'
+import QRCode  from "qrcodejs2";
+import AreaTree from '../../../common/components/AreaTree';
 export default {
   data() {
     return {
@@ -460,6 +460,38 @@ export default {
 	            }
           }
         }]});
+    },
+    initData(){
+      let this_=this;
+      this.$http.post("http://srv.shine-iot.com:8060/area/org/areas").
+      then(function (response) {
+        let areaData=response.data.data;
+        console.log(this_.toTree(areaData));
+        this_.data=this_.toTree(areaData);
+      })
+    },
+    toTree(data) {
+      console.log("进来了");
+      let result = [];
+      if(!Array.isArray(data)) {
+          return result
+      }
+      data.forEach(item => {
+          delete item.children;
+      });
+      let map = {};
+      data.forEach(item => {
+          map[item.areaID] = item;
+      });
+      data.forEach(item => {
+          let parent = map[item.parentAreaID];
+          if(parent) {
+              (parent.children || (parent.children = [])).push(item);
+          } else {
+              result.push(item);
+          }
+      });
+      return result;
     }
   },
   mounted() {
@@ -500,19 +532,12 @@ export default {
         console.log('地图加载失败', e)
       }
     );
-    this.$http.get("http://192.168.2.103:8060/area/org/areas",{
-      headers: {
-          "Authorization":"Bearer"+"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJsaW5jaGFuZyIsImV4cCI6MTU3ODkyMzMwOSwiaWF0IjoxNTc4OTE2MTA5fQ.BeI21YTIdw_kYepj31eaTj7C3z2KwbgG0mYrszrf4XCWbNai9WvmocROHrZWyZgrrqhUCDQahGOnBB8fJR8lHg",
-      }
-    }).then(res =>function(){
-      console.log(res)
-    }).catch(e =>function(){
-      console.log(e);
-    })
+    this.initData();
   },
   computed: {
     ...mapGetters({
-      api: 'api'
+      api: 'api',
+      token:'token'
     })
   }
 }

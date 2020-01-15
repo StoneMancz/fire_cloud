@@ -24,7 +24,6 @@ VueAMap.initAMapApiLoader({
   // 默认高德 sdk 版本为 1.4.4
   v: '1.4.4'
 });
-
 //路由守卫
 router.beforeEach((to, from, next) => {
   //无论是刷新还是路由跳转，第一个进入的就是这个路由前置钩子
@@ -39,10 +38,22 @@ router.beforeEach((to, from, next) => {
               }
           })
       }
-  } else {
-      next();
+  }else{
+    next();
   }
 })
+
+// http request 拦截器
+
+axios.interceptors.request.use(
+      config => {
+          if (store.state.token) {  // 判断是否存在token，如果存在的话，则每个http header都加上token
+              config.headers.Authorization = "Bearer"+`${store.state.token}`;
+          }
+          return config;
+      },err => {
+        return Promise.reject(err);
+});
 
 new Vue({
   render: h => h(App),

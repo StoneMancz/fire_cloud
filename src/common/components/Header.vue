@@ -16,12 +16,12 @@
               <el-button type="primary">电气火灾</el-button>
               <el-button type="primary">消防用水</el-button>
         </el-drawer>
-        <el-button
+        <!-- <el-button
         plain @click="open1" 
         style="margin-top:5px;margin-right:10px;">
           预警警告
-        </el-button>
-        <el-button type="button" style="margin-right: 10px;" @click="dialogTableVisible = true">报警提示</el-button>
+        </el-button> -->
+        <!-- <el-button type="button" style="margin-right: 10px;" @click="dialogTableVisible = true">报警提示</el-button> -->
         <el-dialog title="事件详情" :visible.sync="dialogTableVisible" width="500px">
           <el-form ref="form" :model="form" label-width="100px">
             <el-form-item label="事件名称" style="margin-bottom: 0px;">
