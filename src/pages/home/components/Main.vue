@@ -18,15 +18,16 @@
         ref="tree"
         @node-click="clickFn">
       </el-tree>
-      
-      <div style="margin-top:240px;">
-        <span style="color:white;font-size:14px;margin-top:10px;">关注微信公众号"智慧消防服务"</span>
-      </div>
-      <div style="width: 100%;margin-left:10px;margin-top:20px;" id="qrcode"></div>
-      <div style="margin-top:10px;">
-        <span style="color:white;font-size:14px;margin-top:10px;">
-          扫描二维码关注此区域
-        </span>
+      <div style="position: fixed;bottom: 0;">
+        <div>
+          <span style="color:white;font-size:14px;margin-top:10px;">关注微信公众号"智慧消防服务"</span>
+        </div>
+        <div style="width: 100%;margin-top:15px;" align="center" id="qrcode"></div>
+        <div style="margin-top:10px;">
+          <span style="color:white;font-size:14px;margin-top:10px;margin-left: 20px;">
+            扫描二维码关注此区域
+          </span>
+        </div>
       </div>
     </div>   
     <div id="mapContent"></div>
@@ -49,30 +50,30 @@
           @current-change="handleCurrentChange"
           style="width: 100%">
           <el-table-column
-            prop="eventTyle"
+            prop="eventTypeName"
             label="事件名称"
             sortable='true'>
           </el-table-column>
           <el-table-column
-            prop="date"
+            prop="eventTime"
             sortable
             label="发生时间">
           </el-table-column>
           <el-table-column
-            prop="number"
+            prop="installNumber"
             label="安装编号"
             width="180">
           </el-table-column>
           <el-table-column
-            prop="deviceName"
+            prop="shortTypeName"
             label="设备名称">
           </el-table-column>
           <el-table-column
-            prop="area"
+            prop="areaName"
             label="所属区域">
           </el-table-column>
           <el-table-column
-            prop="address"
+            prop="deviceAddr"
             label="详细地址">
           </el-table-column>
         </el-table>
@@ -80,7 +81,8 @@
           background
           style="float:right;margin-top:10px;"
           layout="prev, pager, next"
-          :total="1000">
+          :total="eventotal"
+          @current-change="handlePaginCurrentEvenChange">
         </el-pagination>
     </el-drawer>
 
@@ -98,26 +100,26 @@
         @current-change="deviceListSelect"
         style="width: 100%">
         <el-table-column
-          prop="deviceNumber"
+          prop="installNumber"
           label="安装编号"
           width="180">
         </el-table-column>
         <el-table-column
-          prop="deviceName"
+          prop="shortTypeName"
           label="设备名称"
           sortable>
         </el-table-column>
         <el-table-column
-          prop="currentStatus"
+          prop="runStatusName"
           sortable
           label="当前状态">
         </el-table-column>
         <el-table-column
-          prop="area"
+          prop="areaName"
           label="所属区域">
         </el-table-column>
         <el-table-column
-          prop="address"
+          prop="deviceAddr"
           label="详细地址"
           width="160">
         </el-table-column>
@@ -126,39 +128,40 @@
         background
         style="float:right;margin-top:10px;"
         layout="prev, pager, next"
-        :total="1000">
+        @current-change="handlePaginCurrentChange" 
+        :total="total">
       </el-pagination>
     </el-drawer>
 
-    <el-button type="button" @click="dialogTableVisible = true">事件</el-button>
+    <el-button type="button" @click="dialogTableVisible=true">事件</el-button>
     <el-dialog title="事件详情" :visible.sync="dialogTableVisible" width="500px">
       <el-form ref="form" :model="form" label-width="100px">
         <el-form-item label="事件名称" style="margin-bottom: 0px;">
-          <span style="margin-left:50px;">设备结束自检</span>
+          <span style="margin-left:50px;">{{this.form.evenname}}</span>
         </el-form-item>
         <el-form-item label="发生时间" style="margin-bottom: 0px;">
-          <span style="margin-left:50px;">2019-12-24 10:39:00</span>
+          <span style="margin-left:50px;">{{this.form.evenData}}</span>
         </el-form-item>
         <el-form-item label="事件编号" style="margin-bottom: 0px;">
-          <span style="margin-left:50px;">419</span>
+          <span style="margin-left:50px;">{{this.form.evenNum}}</span>
         </el-form-item>
         <el-form-item label="事件等级" style="margin-bottom: 0px;">
-          <span style="margin-left:50px;">一般</span>
+          <span style="margin-left:50px;">{{this.form.evenLeven}}</span>
         </el-form-item>
         <el-form-item label="设备类型" style="margin-bottom: 0px;">
-          <span style="margin-left:50px;">点型感烟火灾探测器</span>
+          <span style="margin-left:50px;">{{this.form.deviceType}}</span>
         </el-form-item>
         <el-form-item label="安装编号" style="margin-bottom: 0px;">
-          <span style="margin-left:50px;">8694050300464338</span>
+          <span style="margin-left:50px;">{{this.form.innsertNum}}</span>
         </el-form-item>
         <el-form-item label="设备编号" style="margin-bottom: 0px;">
-          <span style="margin-left:50px;">8694050300464338</span>
+          <span style="margin-left:50px;">{{this.form.deviceNum}}</span>
         </el-form-item>
         <el-form-item label="所属区域" style="margin-bottom: 0px;">
-          <span style="margin-left:50px;">测试区域-2</span>
+          <span style="margin-left:50px;">{{this.form.area}}</span>
         </el-form-item>
         <el-form-item label="详细地址" style="margin-bottom: 0px;">
-          <span style="margin-left:50px;">时亦大厦#9值班室</span>
+          <span style="margin-left:50px;">{{this.form.address}}</span>
         </el-form-item>
       </el-form>
     </el-dialog> 
@@ -166,43 +169,43 @@
     <el-dialog title="设备详情" :visible.sync="equipmentDetails"  width="450px">
       <el-form ref="form" :model="form" label-width="100px">
         <el-form-item label="设备类型" style="margin-bottom: 0px;">
-          <span style="margin-left:50px;">液位计</span>
+          <span style="margin-left:50px;">{{this.deviceForm.deviceType}}</span>
         </el-form-item>
         <el-form-item label="安装编号" style="margin-bottom: 0px;">
-          <span style="margin-left:50px;">865820030763135</span>
+          <span style="margin-left:50px;">{{this.deviceForm.insertNum}}</span>
         </el-form-item>
         <el-form-item label="设备编号" style="margin-bottom: 0px;">
-          <span style="margin-left:50px;">865820030763135</span>
+          <span style="margin-left:50px;">{{this.deviceForm.deviceSn}}</span>
         </el-form-item>
         <el-form-item label="运行状态" style="margin-bottom: 0px;">
-          <span style="margin-left:50px;">正常</span>
+          <span style="margin-left:50px;">{{this.deviceForm.runSatus}}</span>
         </el-form-item>
         <el-form-item label="电池电量" style="margin-bottom: 0px;">
-          <span style="margin-left:50px;">69%</span>
+          <span style="margin-left:50px;">{{this.deviceForm.batteryPower}}</span>
         </el-form-item>
         <el-form-item label="所属区域" style="margin-bottom: 0px;">
-          <span style="margin-left:50px;">西佘山</span>
+          <span style="margin-left:50px;">{{this.deviceForm.area}}</span>
         </el-form-item>
         <el-form-item label="详细地址" style="margin-bottom: 0px;">
-          <span style="margin-left:50px;">山顶消防水库</span>
+          <span style="margin-left:50px;">{{this.deviceForm.adress}}</span>
         </el-form-item>
-        <el-form-item label="当前值" style="margin-bottom: 0px;">
-          <span style="margin-left:50px;">2.3931米</span>
+        <el-form-item label="当前值" style="margin-bottom: 0px;" v-if="this.deviceForm.deviceType=='压力计' || this.deviceForm.deviceType=='液位计'">
+          <span style="margin-left:50px;">{{this.deviceForm.currentValue}}</span>
         </el-form-item>
-        <el-form-item label="上限报警值" style="margin-bottom: 0px;">
-          <span style="margin-left:50px;">2.7米</span>
+        <el-form-item label="上限报警值" style="margin-bottom: 0px;" v-if="this.deviceForm.deviceType=='压力计' || this.deviceForm.deviceType=='液位计'">
+          <span style="margin-left:50px;">{{this.deviceForm.upAlarm}}</span>
         </el-form-item>
-        <el-form-item label="上限预警值" style="margin-bottom: 0px;">
-          <span style="margin-left:50px;">2.6米</span>
+        <el-form-item label="上限预警值" style="margin-bottom: 0px;" v-if="this.deviceForm.deviceType=='压力计' || this.deviceForm.deviceType=='液位计'">
+          <span style="margin-left:50px;">{{this.deviceForm.upWarn}}</span>
         </el-form-item>
-        <el-form-item label="下限预警值" style="margin-bottom: 0px;">
-          <span style="margin-left:50px;">2.2米</span>
+        <el-form-item label="下限预警值" style="margin-bottom: 0px;" v-if="this.deviceForm.deviceType=='压力计' || this.deviceForm.deviceType=='液位计'">
+          <span style="margin-left:50px;">{{this.deviceForm.lowWarn}}</span>
         </el-form-item>
-        <el-form-item label="下限报警值" style="margin-bottom: 0px;">
-          <span style="margin-left:50px;">2米</span>
+        <el-form-item label="下限报警值" style="margin-bottom: 0px;" v-if="this.deviceForm.deviceType=='压力计' || this.deviceForm.deviceType=='液位计'">
+          <span style="margin-left:50px;">{{this.deviceForm.lowAlarm}}</span>
         </el-form-item>
-        <div id="deviceQrcode" style="width:100%;height:180px;margin-left:20px;"></div>
-        <div id="waterWave" style="margin-left:20px;width:400px;height:200px;margin-top:-40px;"></div>
+        <!-- <div id="deviceQrcode" style="width:100%;height:180px;margin-left:20px;"></div>
+        <div id="waterWave" style="margin-left:20px;width:400px;height:200px;margin-top:-40px;"></div> -->
       </el-form>
     </el-dialog>
   </div>
@@ -212,44 +215,45 @@ import {mapState,mapGetters} from 'vuex';
 import $ from 'jquery';
 import MapLoader from '@/assets/js/AMap.js';
 import QRCode  from "qrcodejs2";
-import AreaTree from '../../../common/components/AreaTree';
+import qs from 'qs';
 export default {
   data() {
     return {
       cluster:[],
       map:'',
+      areaID:'',
       markers: [],
       dialogTableVisible: false,
       equipmentDetails:false,
       form: {
-        name: '',
-        region: '',
-        date1: '',
-        date2: '',
-        delivery: false,
-        type: [],
-        resource: '',
-        desc: ''
+        evenname: '',
+        evenData: '',
+        evenNum: '',
+        evenLeven: '',
+        deviceType:'',
+        innsertNum:'',
+        deviceNum:'',
+        area: '',
+        address:''
       },
-      link: 'https://baidu.com',
+      deviceForm:{
+        deviceType:"",
+        insertNum:"",
+        deviceSn:"",
+        runSatus:"",
+        batteryPower:"",
+        area:"",
+        adress:"",
+        currentValue:"",
+        upAlarm:"",
+        lowAlarm:"",
+        upWarn:"",
+        lowWarn:""
+      },
       filterText:'',
-      data: [{
-        id: 1,
-        label: '松江林场',
-        children: [{
-          id: 4,
-          label: '东佘山'
-          },{
-            id: 5,
-            label: '西佘山'
-          },{
-            id: 6,
-            label: '小昆山'
-          },{
-            id: 7,
-            label: '天马山'
-          }]
-      }],
+      data:[],
+      total:0,
+      eventotal:0,
       defaultProps: {
         children: 'children',
         label: 'label'
@@ -258,60 +262,8 @@ export default {
       drawers:false,
       direction: 'rtl',
       directions:'rtl',
-      tableData:[{
-          number: '865820030763135',
-          deviceName: '液压计',
-          area:"西佘山",
-          address: '西佘山-山顶消防水库',
-          eventTyle:'正常',
-          date:'2019-12-27 12:00:00'
-        }, {
-          number: '865820030763135',
-          deviceName: '液压计',
-          area:"西佘山",
-          address: '东佘山-山顶消防水库',
-          eventTyle:'低压报警',
-          date:'2019-12-28 12:00:00'
-        }, {
-          number: '865820030763135',
-          deviceName: '液压计',
-          area:"西佘山",
-          address: '小昆山-山顶消防水库',
-          eventTyle:'高压预警',
-          date:'2019-12-29 12:00:00'
-        }, {
-          number: '865820030763135',
-          deviceName: '液压计',
-          area:"西佘山",
-          address: '天马山-山顶消防水库',
-          eventTyle:'报警',
-          date:'2019-12-30 12:00:00'
-        }],
-      deviceTableData:[{
-          deviceNumber: '865820030763135',
-          deviceName: '液压计',
-          currentStatus: '正常',
-          area:"西佘山",
-          address:'西佘山-山顶消防水库'
-          }, {
-            deviceNumber: '865820030763135',
-            deviceName: '液压计',
-            currentStatus: '正常',
-            area:"西佘山",
-            address:'东佘山-山顶消防水库'
-          }, {
-            deviceNumber: '865820030763135',
-            deviceName: '液压计',
-            currentStatus: '正常',
-            area:"西佘山",
-            address:'小昆山-山顶消防水库'
-          }, {
-            deviceNumber: '865820030763135',
-            deviceName: '液压计',
-            currentStatus: '正常',
-            area:"西佘山",
-            address:'天马山-山顶消防水库'
-          }]
+      tableData:[],
+      deviceTableData:[]
     }
   },
   components:{
@@ -357,12 +309,12 @@ export default {
             url: 'https://a.amap.com/jsapi_demos/static/images/darkRed.png',
             size: new AMap.Size(48, 48),
             offset: new AMap.Pixel(-24, -24)
-          }
-        ]
-        cluster = new AMap.MarkerClusterer(this.map, this.markers, {
-          styles: sts,
-          gridSize: 2
-        })
+          }];
+          let this_=this;
+          this.map.plugin(["AMap.MarkerClusterer"],function() {
+          cluster = new AMap.MarkerClusterer(this_.map,this_.markers,
+              {styles:sts}
+          )})
       } else {
       }
     },
@@ -371,53 +323,58 @@ export default {
       return data.label.indexOf(value) !== -1;
     },
     clickFn(data){
+      this.areaID=data.id;
       document.getElementById('qrcode').innerHTML="";
-      this.qrcode(data.label);
-      if(data.id==4){
-        this.map.setZoomAndCenter(30,[121.1960382200,31.0941724300]);		
-      }else if(data.id==5){
-        this.map.setZoomAndCenter(30,[121.1907584800,31.0944413200]);
-      }else if(data.id==6){
-        this.map.setZoomAndCenter(30,[121.1324798600,31.0293597400]);
-      }else if(data.id==7){
-        this.map.setZoomAndCenter(30,[121.1528971300,31.0758027600]);
-      }
-     			
+      this.qrcode(data.areaQRCode);
+      this.initEven();
+      this.initDevice();
+      this.map.setZoomAndCenter(15,[data.areaLong,data.areaLat]);
     },
     handleCurrentChange(val) {
       this.currentRow = val;
       this.dialogTableVisible=true;
-      if(val.address=="西佘山-山顶消防水库"){
-         this.map.setZoomAndCenter(30,[121.1907584800,31.0944413200]);
-      }else if(val.address=="东佘山-山顶消防水库"){
-         this.map.setZoomAndCenter(30,[121.1960382200,31.0941724300]);	
-      }else if(val.address=="小昆山-山顶消防水库"){
-         this.map.setZoomAndCenter(30,[121.1324798600,31.0293597400]);
-      }else if(val.address=="天马山-山顶消防水库"){
-         this.map.setZoomAndCenter(30,[121.1528971300,31.0758027600]);
-      }
+      let this_=this;
+      this.$http.get(`http://srv.shine-iot.com:8060/event/detail/${val.eventId}`).
+      then(function (response) {
+        response=response.data.data;
+        this_.form.evenname=response.eventDealStatusName;
+        this_.form.evenData=response.eventTime;
+        this_.form.evenNum=response.eventId;
+        this_.form.evenLeven=response.eventLevelName;
+        this_.form.deviceType=response.dcTypeName;
+        this_.form.innsertNum=response.installNumber;
+        this_.form.deviceNum=response.deviceSN;
+        this_.form.area=response.areaName;
+        this_.form.address=response.areaLocCity+response.areaLocDist+response.areaName+response.deviceAddr;
+      })
     },
     deviceListSelect(val){
       this.equipmentDetails=true;
-      document.getElementById('deviceQrcode').innerHTML="";
-      this.equipmentQrcode("aaaaa");
-      this.equipmentTrend();
       this.currentRow = val;
-      if(val.address=="西佘山-山顶消防水库"){
-         this.map.setZoomAndCenter(30,[121.1907584800,31.0944413200]);
-      }else if(val.address=="东佘山-山顶消防水库"){
-         this.map.setZoomAndCenter(30,[121.1960382200,31.0941724300]);	
-      }else if(val.address=="小昆山-山顶消防水库"){
-         this.map.setZoomAndCenter(30,[121.1324798600,31.0293597400]);
-      }else if(val.address=="天马山-山顶消防水库"){
-         this.map.setZoomAndCenter(30,[121.1528971300,31.0758027600]);
-      }
+      let this_=this;
+      this.$http.get(`http://srv.shine-iot.com:8060/device/extval/${val.deviceId}`).
+      then(function (response) {
+        console.log(response);
+        response=response.data.data;
+        this_.deviceForm.deviceType=response.dcTypeName
+        this_.deviceForm.insertNum=response.installNumber;
+        this_.deviceForm.deviceSn=response.deviceSN;
+        this_.deviceForm.runSatus=response.runStatusName;
+        this_.deviceForm.batteryPower=response.batteryLevel+response.mainSensorUnitName;
+        this_.deviceForm.area=response.areaName;
+        this_.deviceForm.adress=response.deviceAddr;
+        this_.deviceForm.currentValue=response.mainSensor;
+        this_.deviceForm.upAlarm=response.upAlarm;
+        this_.deviceForm.lowAlarm=response.lowAlarm;
+        this_.deviceForm.upWarn=response.upWarn;
+        this_.deviceForm.lowWarn=response.lowWarn;
+      })
     },
     qrcode(text){
         let that = this;
         let qrcode = new QRCode('qrcode',{
-            width:170,
-            height:170,
+            width:160,
+            height:160,
             text:text
         })
     },
@@ -462,16 +419,14 @@ export default {
         }]});
     },
     initData(){
-      let this_=this;
-      this.$http.post("http://srv.shine-iot.com:8060/area/org/areas").
-      then(function (response) {
-        let areaData=response.data.data;
-        console.log(this_.toTree(areaData));
-        this_.data=this_.toTree(areaData);
-      })
+      //初始化区域
+      this.initArea();
+      //初始化设备列表
+      this.initDevice();
+      //初始化事件
+      this.initEven();
     },
     toTree(data) {
-      console.log("进来了");
       let result = [];
       if(!Array.isArray(data)) {
           return result
@@ -481,7 +436,7 @@ export default {
       });
       let map = {};
       data.forEach(item => {
-          map[item.areaID] = item;
+          map[item.id] = item;
       });
       data.forEach(item => {
           let parent = map[item.parentAreaID];
@@ -492,6 +447,50 @@ export default {
           }
       });
       return result;
+    },
+    initEven(){
+      let this_=this;
+      var currentData = qs.stringify({'pageSize':6,'areaId':this_.areaID});
+      this.$http.post("http://srv.shine-iot.com:8060/event/area/evts",currentData).
+      then(function (response) {
+        console.log("事件",response);
+        this_.tableData=response.data.data.records;
+        this_.eventotal=response.data.data.total;
+      })
+    },
+    initArea(){
+      let this_=this;
+      this.$http.post("http://srv.shine-iot.com:8060/area/org/areas").
+      then(function (response) {
+        let areaData=response.data.data;  
+        this_.data=this_.toTree(areaData);
+      })
+    },
+    initDevice(){
+      let this_=this;
+      var currentData = qs.stringify({'areaId':this_.areaID});
+      this.$http.post("http://srv.shine-iot.com:8060/device/area/devs",currentData).
+      then(function (response) {
+        let deviceTableData=response.data.data.records;
+        this_.deviceTableData=deviceTableData;
+        this_.total=response.data.data.total;
+      })
+    },
+    handlePaginCurrentChange(data){
+      let this_=this;
+      var currentData = qs.stringify({'pageNo':data,'areaId':this_.areaID});
+      this.$http.post("http://srv.shine-iot.com:8060/device/area/devs",currentData).
+      then(function(response){
+        this_.deviceTableData=response.data.data.records;
+      })
+    },
+    handlePaginCurrentEvenChange(pageNo){
+      let this_=this;
+      var currentData = qs.stringify({'pageSize':6,'pageNo':pageNo,'areaId':this_.areaID});
+      this.$http.post("http://srv.shine-iot.com:8060/event/area/evts",currentData).
+      then(function (response) {
+        this_.tableData=response.data.data.records;
+      })
     }
   },
   mounted() {
@@ -499,33 +498,23 @@ export default {
     let that = this;
     MapLoader().then(
       AMap => {
-        this.map = new AMap.Map('mapContent', {
+        this.map = new AMap.Map('mapContent',{
           center: [121.203894,31.083081],
-          zoom: 15,
+          zoom: 12,
           mapStyle:'amap://styles/c6256c6eb832024319be6c13fd549b52'
         })
-        const api = this.api + '/qeuryOrgAddressInfo';
-        var geocoder = new AMap.Geocoder();
-        const MapData = this.$http.get(api).then(data => {
-          data.data.rsData.forEach((obj, index) => {
-            geocoder.getLocation(obj.orgCityName + obj.address, function(status, result) {
-              if (status === 'complete' && result.info === 'OK') {
-                //result为对应的地理位置详细信息
-                const lnglat = []
-                lnglat.push('' + result.geocodes[0].location.lng + '')
-                lnglat.push('' + result.geocodes[0].location.lat + '')
-                that.markers.push(
-                  new AMap.Marker({
-                    position: lnglat,
-                    offset: new AMap.Pixel(-15, -15)
-                  })
-                )
-              }
-              if (index == data.data.rsData.length - 1) {
-                that.addCluster(1)
-              }
-            })
-          })
+        this.$http.post("http://srv.shine-iot.com:8060/device/area/devgps").then(data => { 
+          console.log(data);
+          data.data.data.forEach((obj, index) => {
+              const lnglat = [obj.deviceGpsLong,obj.deviceGpsLati];
+              that.markers.push(
+                new AMap.Marker({
+                  position: lnglat,
+                  offset: new AMap.Pixel(-15, -15)
+                })
+              )
+              that.addCluster(1);
+          });
         })
       },
       e => {
@@ -599,7 +588,6 @@ export default {
       background:#042939;
       color: #A7B1C2;
   }
-
 
   #sidemenu{
       display: none;
