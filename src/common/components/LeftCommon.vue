@@ -7,7 +7,7 @@
             </div>
             <el-input
                 placeholder="输入关键字进行过滤"
-                v-model="filterText">
+                v-model="filterText" style="margin-top:20px;">
             </el-input>
             <el-tree
                 class="filter-tree" 
@@ -51,7 +51,6 @@ export default {
         clickFn(data){
             document.getElementById('qrcode').innerHTML="";
             this.qrcode(data.areaQRCode);
-            console.log(data)
             this.$parent.fatherClickFn(data);
         },
         filterNode(value, data) {
