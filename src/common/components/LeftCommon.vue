@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <renderless-component-example>
         <input type='checkbox' id='sidemenu'>
         <div class="code_area">
             <div id='wrap'>
@@ -30,9 +30,11 @@
                 </div>
             </div>
         </div>  
-    </div>
+    </renderless-component-example>
 </template>
 <script>
+import QRCode  from "qrcodejs2";
+import qs from 'qs';
 export default {
     data(){
       return {
@@ -47,12 +49,14 @@ export default {
     },
     methods:{
         clickFn(data){
-            this.areaID=data.id;
             document.getElementById('qrcode').innerHTML="";
             this.qrcode(data.areaQRCode);
-            this.initEven();
-            this.initDevice();
-            this.map.setZoomAndCenter(15,[data.areaLong,data.areaLat]);
+            console.log(data)
+            this.$parent.fatherClickFn(data);
+        },
+        filterNode(value, data) {
+            if (!value) return true;
+            return data.label.indexOf(value) !== -1;
         },
         qrcode(text){
             let that = this;
@@ -97,27 +101,14 @@ export default {
         filterText(val) {
             this.$refs.tree.filter(val);
         }
+    },
+    mounted(){
+        this.qrcode("area-22e214823b294d57b1ffd5e557b325ad");
+        this.initArea();
     }
 }
 </script>
 <style lang="stylus" scoped>
-  .content{
-      position: absolute;
-      width: 100%;
-      border-bottom: 1px solid #ccc;
-      top: 50px;
-      bottom: 0;
-  }
-
-  #mapContent {
-    position: relative;
-    top: 2%;
-    height:100%;
-    border-left: 1px solid #1E2538;
-    overflow: hidden;
-    background: rgba(9, 25, 58, 1);
-  }
-
   .code_area{
     position: relative;
     top:2%;
@@ -127,30 +118,6 @@ export default {
     z-index: 999;
     background-color:#042939;
     box-shadow: 3px 0px 6px #1E2538;
-  }
-
-  #rightWrap{
-    width 14px;
-    float right
-    #event{
-      background: url('~@/static/img/result.png') no-repeat 0 -142px;;
-      width: 14px;
-      height: 90px;
-      position: absolute;
-      z-index: 2;
-      top: 50%;
-      margin-top: -45px;
-    }
-
-    #deviceList{
-      background: url('~@/static/img/result.png') no-repeat 0 -142px;;
-      width: 14px;
-      height: 90px;
-      position: absolute;
-      z-index: 2;
-      top: 50%;
-      margin-top: 80px;
-    }
   }
 
   .el-tree {

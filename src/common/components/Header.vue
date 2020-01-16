@@ -65,9 +65,6 @@
           active-text-color="#ffd04b">
           <el-menu-item index="1">首页</el-menu-item>
           <el-menu-item index="2">实时监控</el-menu-item>
-          <el-menu-item index="3">人员管理</el-menu-item>
-          <el-menu-item index="4">设备管理</el-menu-item>
-          <el-menu-item index="5">修改密码</el-menu-item>
         </el-menu>
       </div>
   </div>
