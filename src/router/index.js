@@ -7,6 +7,7 @@ import EquipmentManage from '../pages/equipmentManage/Index.vue';
 import PersonMange from '../pages/personnelManag/Index.vue'
 Vue.use(Router);
 export default new Router({
+    mode:"hash",
     routes: [{
         path: '/',
         name: 'Login',

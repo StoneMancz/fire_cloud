@@ -285,12 +285,13 @@ export default {
             })
         },
         deviceListSelect(val){
+            this.equipmentDetails=true;
             this.currentRow = val;
             let this_=this;
             this.$http.get(`http://srv.shine-iot.com:8060/device/extval/${val.deviceId}`).
             then(function (response) {
                 response=response.data.data;
-                this.showDeviceDetil(response);
+                this_.showDeviceDetil(response);
             })
         },
         showDeviceDetil(response){

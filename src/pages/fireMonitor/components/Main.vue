@@ -19,9 +19,9 @@
           <button class="alarm"  v-if="item.runStatusName=='设备开始自检'"></button>
           <button class="alarm"  v-if="item.runStatusName=='低压报警'"></button>
           <img src="../../../static/img/smokeDevice.jpg" style="width:100px;height:100px;
-          margin-left:75px;margin-top:45px;"  v-if="item.shortTypeName=='烟感'">
+          margin-left:75px;margin-top:45px;display:block;"  v-if="item.shortTypeName=='烟感'">
           <img src="../../../static/img/Gate.jpg" style="width:100px;height:100px;
-          margin-left:75px;margin-top:45px;"  v-if="item.shortTypeName=='门磁开关探测器'">
+          margin-left:75px;margin-top:45px;display:block;"  v-if="item.shortTypeName=='门磁开关探测器'">
           <WaterTank v-if="item.shortTypeName=='液位计'"  v-bind:deviceId12="item.deviceId" v-bind:item="item"></WaterTank>
           <HydraulicFn v-if="item.shortTypeName=='压力计'" v-bind:deviceId13="item.deviceId" v-bind:item="item"></HydraulicFn>
           <div class="adds" v-if="item.shortTypeName=='烟感'">{{item.areaName}}-{{item.deviceAddr}}</div>
