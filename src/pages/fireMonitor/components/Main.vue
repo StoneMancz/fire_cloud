@@ -3,25 +3,30 @@
     <LeftCommon></LeftCommon>
     <div id="mapContent">
       <div id="mapContent-header">
-        <el-button type="primary" style="background:#083F72"  v-on:click="deviceSwitch('all')">所有</el-button>
-        <el-button type="primary" style="background:#083F72"  v-on:click="deviceSwitch('smoke')">点型感烟火灾探测器</el-button>
-        <el-button type="primary" style="background:#083F72"  v-on:click="deviceSwitch('doorSensor')">门磁开关探测器</el-button>
-        <el-button type="primary" style="background:#083F72"  v-on:click="deviceSwitch('Level')">液位计</el-button>
-        <el-button type="primary" style="background:#083F72"  v-on:click="deviceSwitch('Hydraulic')">压力计</el-button>
+        <el-button type="primary" style="background:#083F72"  v-on:click="deviceSwitch('')">所有</el-button>
+        <el-button type="primary" style="background:#083F72"  v-on:click="deviceSwitch('1')">点型感烟火灾探测器</el-button>
+        <el-button type="primary" style="background:#083F72"  v-on:click="deviceSwitch('7')">门磁开关探测器</el-button>
+        <el-button type="primary" style="background:#083F72"  v-on:click="deviceSwitch('16')">液位计</el-button>
+        <el-button type="primary" style="background:#083F72"  v-on:click="deviceSwitch('17')">压力计</el-button>
       </div>
-
       <div id="mapContent-content">
         <div class="device-item" 
-          v-for="item in deviceList" v-bind:key="item.deviceId">
+          v-for="item in deviceList" v-bind:key="item.deviceId" v-on:click="equipmentDetailsFn(item.deviceId)">
           <span style="color:white;font-size:12px;">{{item.installNumber}}</span>
-          <button id="status"></button>
+          <button class="status" v-if="item.runStatusName=='门关闭'"></button>
+          <button class="status" v-if="item.runStatusName=='正常'"></button>
+          <button class="alarm"  v-if="item.runStatusName=='高液位报警'"></button>
+          <button class="alarm"  v-if="item.runStatusName=='低压报警'"></button>
           <img src="../../../static/img/smokeDevice.jpg" style="width:100px;height:100px;
           margin-left:75px;margin-top:45px;"  v-if="item.shortTypeName=='烟感'">
           <img src="../../../static/img/Gate.jpg" style="width:100px;height:100px;
           margin-left:75px;margin-top:45px;"  v-if="item.shortTypeName=='门磁开关探测器'">
-          <div class="showWaterTank" v-if="item.shortTypeName=='液位计'" id="showWaterTank"></div>
-          <div class="Hydraulic" v-if="item.shortTypeName=='压力计'"></div>
-          <div class="adds">{{item.areaName}}-{{item.deviceAddr}}</div>
+          <WaterTank v-if="item.shortTypeName=='液位计'"  v-bind:deviceId12="item.deviceId" v-bind:item="item"></WaterTank>
+          <HydraulicFn v-if="item.shortTypeName=='压力计'" v-bind:deviceId13="item.deviceId" v-bind:item="item"></HydraulicFn>
+          <div class="adds" v-if="item.shortTypeName=='烟感'">{{item.areaName}}-{{item.deviceAddr}}</div>
+          <div class="adds" v-if="item.shortTypeName=='门磁开关探测器'">{{item.areaName}}-{{item.deviceAddr}}</div>
+          <div class="adds" style="margin-top: 0px;" v-if="item.shortTypeName=='液位计'" >{{item.areaName}}-{{item.deviceAddr}}</div>
+          <div class="adds" style="margin-top: 0px;" v-if="item.shortTypeName=='压力计'" >{{item.areaName}}-{{item.deviceAddr}}</div>
         </div>
       </div>
       <div style="right: 0;position: fixed;bottom: 0;">
@@ -34,6 +39,48 @@
       </div>
     </div>
     <RightCommon ref="child"></RightCommon>
+    <el-dialog title="设备详情" :visible.sync="equipmentDetails"  width="450px">
+        <el-form ref="form" :model="form" label-width="100px">
+            <el-form-item label="设备类型" style="margin-bottom: 0px;">
+            <span style="margin-left:50px;">{{this.deviceForm.deviceType}}</span>
+            </el-form-item>
+            <el-form-item label="安装编号" style="margin-bottom: 0px;">
+            <span style="margin-left:50px;">{{this.deviceForm.insertNum}}</span>
+            </el-form-item>
+            <el-form-item label="设备编号" style="margin-bottom: 0px;">
+            <span style="margin-left:50px;">{{this.deviceForm.deviceSn}}</span>
+            </el-form-item>
+            <el-form-item label="运行状态" style="margin-bottom: 0px;">
+            <span style="margin-left:50px;">{{this.deviceForm.runSatus}}</span>
+            </el-form-item>
+            <el-form-item label="电池电量" style="margin-bottom: 0px;">
+            <span style="margin-left:50px;">{{this.deviceForm.batteryPower}}</span>
+            </el-form-item>
+            <el-form-item label="所属区域" style="margin-bottom: 0px;">
+            <span style="margin-left:50px;">{{this.deviceForm.area}}</span>
+            </el-form-item>
+            <el-form-item label="详细地址" style="margin-bottom: 0px;">
+            <span style="margin-left:50px;">{{this.deviceForm.adress}}</span>
+            </el-form-item>
+            <el-form-item label="当前值" style="margin-bottom: 0px;" v-if="this.deviceForm.deviceType=='压力计' || this.deviceForm.deviceType=='液位计'">
+            <span style="margin-left:50px;">{{this.deviceForm.currentValue}}</span>
+            </el-form-item>
+            <el-form-item label="上限报警值" style="margin-bottom: 0px;" v-if="this.deviceForm.deviceType=='压力计' || this.deviceForm.deviceType=='液位计'">
+            <span style="margin-left:50px;">{{this.deviceForm.upAlarm}}</span>
+            </el-form-item>
+            <el-form-item label="上限预警值" style="margin-bottom: 0px;" v-if="this.deviceForm.deviceType=='压力计' || this.deviceForm.deviceType=='液位计'">
+            <span style="margin-left:50px;">{{this.deviceForm.upWarn}}</span>
+            </el-form-item>
+            <el-form-item label="下限预警值" style="margin-bottom: 0px;" v-if="this.deviceForm.deviceType=='压力计' || this.deviceForm.deviceType=='液位计'">
+            <span style="margin-left:50px;">{{this.deviceForm.lowWarn}}</span>
+            </el-form-item>
+            <el-form-item label="下限报警值" style="margin-bottom: 0px;" v-if="this.deviceForm.deviceType=='压力计' || this.deviceForm.deviceType=='液位计'">
+            <span style="margin-left:50px;">{{this.deviceForm.lowAlarm}}</span>
+            </el-form-item>
+            <!-- <div id="deviceQrcode" style="width:100%;height:180px;margin-left:20px;"></div>
+            <div id="waterWave" style="margin-left:20px;width:400px;height:200px;margin-top:-40px;"></div> -->
+        </el-form>
+      </el-dialog>
   </div>
 </template>
 <script>
@@ -44,6 +91,8 @@ import 'echarts-liquidfill/src/liquidFill.js';
 import QRCode  from "qrcodejs2";
 import LeftCommon from '../../../common/components/LeftCommon';
 import RightCommon from '../../../common/components/RightCommon';
+import WaterTank from '../../../common/components/ShowWaterTankCommon';
+import HydraulicFn from '../../../common/components/HydraulicFn';
 export default {
   data() {
     return {
@@ -51,6 +100,33 @@ export default {
       deviceList:[],
       newDeviceList:[],
       eventotal:0,
+      showWaterTankId:[],
+      equipmentDetails:false,
+      deviceForm:{
+          deviceType:"",
+          insertNum:"",
+          deviceSn:"",
+          runSatus:"",
+          batteryPower:"",
+          area:"",
+          adress:"",
+          currentValue:"",
+          upAlarm:"",
+          lowAlarm:"",
+          upWarn:"",
+          lowWarn:""
+      },
+      form: {
+          evenname: '',
+          evenData: '',
+          evenNum: '',
+          evenLeven: '',
+          deviceType:'',
+          innsertNum:'',
+          deviceNum:'',
+          area: '',
+          address:''
+      }
     }
   },
   watch: {
@@ -60,28 +136,18 @@ export default {
   },
   components:{
     LeftCommon,
-    RightCommon
+    RightCommon,
+    WaterTank,
+    HydraulicFn
   },
   methods: {
     filterNode(value, data) {
       if (!value) return true;
       return data.label.indexOf(value) !== -1;
     },
-    showWaterTank(){
-      var myChart = this.$echarts.init(document.getElementById("showWaterTank"));
-      myChart.setOption({series: [{
-            type:'liquidFill',
-            data:[0.56],
-            label:{
-                normal:{
-                    textStyle:{
-                        fontSize:20  // 修改字体大小
-                    }
-                }
-            }
-      }]});
+    addShowWaterTankId(id){
+      this.showWaterTankId.push(id);
     },
-    hydraulicFn(){},
     location(areaLong,areaLat){
       console.log(areaLong);
     },
@@ -90,7 +156,6 @@ export default {
       var currentData = qs.stringify({'areaId':this_.areaID,'pageSize':10});
       this.$http.post("http://srv.shine-iot.com:8060/device/area/devs",currentData).
       then(function (response) {
-          console.log("设备列表",response);
           let deviceTableData=response.data.data.records;
           this_.eventotal=response.data.data.total;
           this_.deviceList=deviceTableData;
@@ -111,11 +176,42 @@ export default {
       this.$refs.child.initDevice();
       this.$refs.child.initEven();
       this.initDevceList();
+    },
+    deviceSwitch(data){
+      let this_=this;
+      var currentData = qs.stringify({'areaId':this_.areaID,'pageSize':10,'devType':data});
+      this.$http.post("http://srv.shine-iot.com:8060/device/area/devs",currentData).
+      then(function (response) {
+          let deviceTableData=response.data.data.records;
+          this_.eventotal=response.data.data.total;
+          this_.deviceList=deviceTableData;
+      })
+    },
+    equipmentDetailsFn(deviceId){
+      console.log("deviceId",deviceId);
+      this.equipmentDetails=true;
+      let this_=this;
+      this.$http.get(`http://srv.shine-iot.com:8060/device/extval/${deviceId}`).
+      then(function (response) {
+          response=response.data.data;
+          console.log("response",response);
+          this_.deviceForm.deviceType=response.dcTypeName
+          this_.deviceForm.insertNum=response.installNumber;
+          this_.deviceForm.deviceSn=response.deviceSN;
+          this_.deviceForm.runSatus=response.runStatusName;
+          this_.deviceForm.batteryPower=response.batteryLevel+response.batteryLevelUnitName;
+          this_.deviceForm.area=response.areaName;
+          this_.deviceForm.adress=response.deviceAddr;
+          this_.deviceForm.currentValue=response.mainSensor+response.mainSensorUnitName;
+          this_.deviceForm.upAlarm=response.upAlarm+response.mainSensorUnitName;
+          this_.deviceForm.lowAlarm=response.lowAlarm+response.mainSensorUnitName;
+          this_.deviceForm.upWarn=response.upWarn+response.mainSensorUnitName;
+          this_.deviceForm.lowWarn=response.lowWarn+response.mainSensorUnitName;
+      })
     }
   },
   updated(){
-    this.hydraulicFn();
-    this.showWaterTank();
+    console.log(this.showWaterTankId);
   },
   computed: {
     ...mapGetters({
@@ -169,27 +265,21 @@ export default {
         font-size:12px;
         margin-top: 60px;
       }
-      #status{
+      .status{
         width:25px;
         height:25px;
         border-radius:100%;
         background:green;
         float right;
       }
-      .showWaterTank{
-        width:230px;
-        height:210px;
-        margin-left:10px;
-      }
-
-      .Hydraulic{
-        width:180px;
-        height:165px;
-        margin-left:35px;
-        margin-top:30px;
+      .alarm{
+        width:25px;
+        height:25px;
+        border-radius:100%;
+        background:red;
+        float right;
       }
     }
-
     .device-item:hover{
        transform:scale(1.05);
        transition: all .3s ease;
