@@ -69,6 +69,10 @@
                   <el-form-item label="详细地址" style="margin-bottom: 0px;">
                   <span style="margin-left:50px;">{{this.form.address}}</span>
                   </el-form-item>
+                  <el-form-item>
+                      <div style="color:#0080FF;cursor: pointer;float: right;"
+                      @click="toDeviceDetail()">查看设备详情</div>
+                  </el-form-item>
               </el-form>
           </el-dialog> 
         </div>
@@ -321,6 +325,7 @@ export default {
                 this.form.area=msgobj.areaName;
                 this.form.evenLeven=msgobj.eventLevelName;
                 this.form.address=msgobj.deviceAddr;
+                this.form.deviceId=msgobj.deviceId
               }
               this.$refs.child.initDevice();
               this.$refs.child.initEven();
@@ -335,6 +340,16 @@ export default {
       var audio = document.getElementById('vd');
       audio.pause();
       done();
+    },
+    toDeviceDetail(){
+        this.dialogTableVisible=false;
+        let this_=this;
+        var music = document.getElementById("vd");//获取ID
+        music.pause();
+        this.$http.get(`http://srv.shine-iot.com:8060/device/extval/${this.form.deviceId}`).
+        then(function (response) {
+          this_.$refs.child.showDeviceDetil(response.data.data);
+        })
     }
   },
   updated(){

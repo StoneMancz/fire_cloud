@@ -11,8 +11,8 @@
             :direction="direction"
             :with-header="false"
             size="45%">
-                <div style="font-size:16px;font-size:16px;font-weight:600;margin-top:10px;
-                margin-left:10px;color:#72767B">事件列表</div>
+            <div style="font-size:16px;font-size:16px;font-weight:600;margin-top:10px;
+            margin-left:10px;color:#72767B">事件列表</div>
                 <el-table
                 :data="tableData"
                 highlight-current-row
@@ -132,6 +132,10 @@
                 <el-form-item label="详细地址" style="margin-bottom: 0px;">
                 <span style="margin-left:50px;">{{this.form.address}}</span>
                 </el-form-item>
+                <el-form-item>
+                    <div style="color:#0080FF;cursor: pointer;float: right;"
+                    @click="toDeviceDetail()">查看设备详情</div>
+                </el-form-item> 
             </el-form>
         </el-dialog>
 
@@ -205,7 +209,8 @@ export default {
                 innsertNum:'',
                 deviceNum:'',
                 area: '',
-                address:''
+                address:'',
+                deviceId:''
             },
             deviceForm:{
                 deviceType:"",
@@ -259,6 +264,7 @@ export default {
                 this_.form.innsertNum=response.installNumber;
                 this_.form.deviceNum=response.deviceSN;
                 this_.form.area=response.areaName;
+                this_.form.deviceId=response.deviceId;
                 this_.form.address=response.areaLocCity+response.areaLocDist+response.areaName+response.deviceAddr;
             })
         },
@@ -279,13 +285,38 @@ export default {
             })
         },
         deviceListSelect(val){
-            this.equipmentDetails=true;
             this.currentRow = val;
             let this_=this;
             this.$http.get(`http://srv.shine-iot.com:8060/device/extval/${val.deviceId}`).
             then(function (response) {
                 response=response.data.data;
-                console.log("sss",response);
+                this.showDeviceDetil(response);
+            })
+        },
+        showDeviceDetil(response){
+            this.equipmentDetails=true;
+            this.$parent.location(response.deviceGpsLong,response.deviceGpsLati);
+            this.deviceForm.deviceType=response.dcTypeName
+            this.deviceForm.insertNum=response.installNumber;
+            this.deviceForm.deviceSn=response.deviceSN;
+            this.deviceForm.runSatus=response.runStatusName;
+            this.deviceForm.batteryPower=response.batteryLevel+response.batteryLevelUnitName;
+            this.deviceForm.area=response.areaName;
+            this.deviceForm.adress=response.deviceAddr;
+            this.deviceForm.currentValue=response.mainSensor+response.mainSensorUnitName;
+            this.deviceForm.upAlarm=response.upAlarm+response.mainSensorUnitName;
+            this.deviceForm.lowAlarm=response.lowAlarm+response.mainSensorUnitName;
+            this.deviceForm.upWarn=response.upWarn+response.mainSensorUnitName;
+            this.deviceForm.lowWarn=response.lowWarn+response.mainSensorUnitName;
+        },
+        toDeviceDetail(){
+            this.dialogTableVisible=false;
+            this.drawer=false;
+            this.equipmentDetails=true;
+            let this_=this;
+            this.$http.get(`http://srv.shine-iot.com:8060/device/extval/${this.form.deviceId}`).
+            then(function (response) {
+                response=response.data.data;
                 this_.$parent.location(response.deviceGpsLong,response.deviceGpsLati);
                 this_.deviceForm.deviceType=response.dcTypeName
                 this_.deviceForm.insertNum=response.installNumber;

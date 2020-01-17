@@ -21,17 +21,21 @@
                     <span style="margin-left:50px;">{{this.form.evenLeven}}</span>
                   </el-form-item>
                   <el-form-item label="设备类型" style="margin-bottom: 0px;">
-                  <span style="margin-left:50px;">{{this.form.deviceType}}</span>
+                    <span style="margin-left:50px;">{{this.form.deviceType}}</span>
                   </el-form-item>
                   <el-form-item label="设备编号" style="margin-bottom: 0px;">
-                  <span style="margin-left:50px;">{{this.form.deviceNum}}</span>
+                    <span style="margin-left:50px;">{{this.form.deviceNum}}</span>
                   </el-form-item>
                   <el-form-item label="所属区域" style="margin-bottom: 0px;">
-                  <span style="margin-left:50px;">{{this.form.area}}</span>
+                    <span style="margin-left:50px;">{{this.form.area}}</span>
                   </el-form-item>
                   <el-form-item label="详细地址" style="margin-bottom: 0px;">
-                  <span style="margin-left:50px;">{{this.form.address}}</span>
+                    <span style="margin-left:50px;">{{this.form.address}}</span>
                   </el-form-item>
+                  <el-form-item>
+                    <div style="color:#0080FF;cursor: pointer;float: right;"
+                    @click="toDeviceDetail()">查看设备详情</div>
+                </el-form-item> 
               </el-form>
           </el-dialog> 
     </div>
@@ -64,7 +68,8 @@ export default {
           innsertNum:'',
           deviceNum:'',
           area: '',
-          address:''
+          address:'',
+          deviceId:''
       }
     }
   },
@@ -127,10 +132,10 @@ export default {
       audio.pause();
       done();
     },
-    open1(area,addr,deviceNum,deviceType,evenType) {
+    open1(area,addr,deviceNum,deviceType,evenType,time) {
         this.$notify({
           title: '通知',
-          message:`位于 ${area}-${addr}，编号为 ${deviceNum} 的${deviceType}，发生 ${evenType}！`,
+          message:`位于 ${area}-${addr}，编号为 ${deviceNum} 的${deviceType}，发生 ${evenType}！（${time}）`,
           type: 'warning',
           duration: 0
         });
@@ -146,11 +151,12 @@ export default {
             var music = document.getElementById("vd");//获取ID
             if(typeof JSON.parse(msg.data) == "object"){
               let msgobj=JSON.parse(msg.data);
-              console.log("msgobj",msgobj);
               if(msgobj.eventLevel=="0"){
-                this.open1(msgobj.areaName,msgobj.deviceAddr,msgobj.deviceSN,msgobj.deviceTypeName,msgobj.eventTypeName);
+                this.open1(msgobj.areaName,msgobj.deviceAddr,msgobj.deviceSN,msgobj.deviceTypeName,msgobj.eventTypeName,this.formatDate(msgobj.eventTime));
+                this.location(msgobj.deviceGpsLong,msgobj.deviceGpsLati);
               }else{
                 music.play();
+                this.location(msgobj.deviceGpsLong,msgobj.deviceGpsLati);
                 this.dialogTableVisible=true;
                 this.form.evenname=msgobj.eventTypeName;
                 this.form.evenData=this.formatDate(msgobj.eventTime);
@@ -160,6 +166,7 @@ export default {
                 this.form.area=msgobj.areaName;
                 this.form.evenLeven=msgobj.eventLevelName;
                 this.form.address=msgobj.deviceAddr;
+                this.form.deviceId=msgobj.deviceId
               }
               this.$refs.child.initDevice();
               this.$refs.child.initEven();
@@ -192,6 +199,12 @@ export default {
          m=date.getMinutes() + ':'
       }
 
+      if(date.getHours()<10){
+          h="0"+date.getHours()+":";
+      }else{
+         h=date.getHours() + ':'
+      }
+
       if(s<10){
         s='0'+s;
       }
@@ -206,6 +219,16 @@ export default {
     },
     location(areaLong,areaLat){
         this.map.setZoomAndCenter(15,[areaLong,areaLat]);
+    },
+    toDeviceDetail(){
+        this.dialogTableVisible=false;
+        let this_=this;
+        var music = document.getElementById("vd");//获取ID
+        music.pause();
+        this.$http.get(`http://srv.shine-iot.com:8060/device/extval/${this.form.deviceId}`).
+        then(function (response) {
+          this_.$refs.child.showDeviceDetil(response.data.data);
+        })
     }
   },
   mounted() {
@@ -235,7 +258,6 @@ export default {
         console.log('地图加载失败', e)
       }
     );
-    console.log("执行----");
   },
   computed: {
     ...mapGetters({
