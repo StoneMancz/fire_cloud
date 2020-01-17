@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Header id="header"></Header>
+    <Header id="header" :activeIndex123="1"></Header>
     <Main id="main"></Main>
   </div>
 </template>

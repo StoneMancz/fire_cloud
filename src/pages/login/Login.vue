@@ -41,7 +41,7 @@ export default {
       rules: {
         name: [
           { required: true, message: '请输入用户名', trigger: 'blur' },
-          { min: 3, max: 10, message: '长度在 3 到 10 个字符', trigger: 'blur' }
+          { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
         ],
         pass: [{required: true,validator: validatePass, trigger: 'blur' }]
       }
@@ -58,7 +58,7 @@ export default {
           localStorage.setItem("accessToken",response.data.data.token);
           this_.$router.replace({path:'/home'})
         }else{
-          alert('该用户不存在,请即时联系管理人员')
+          alert('用户名或者密码不正确，请联系管理人员')
         }
       })
     }

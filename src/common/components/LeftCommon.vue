@@ -14,19 +14,20 @@
                 :data="data"
                 :props="defaultProps"
                 default-expand-all
+                highlight-current
                 :filter-node-method="filterNode"
                 ref="tree"
                 @node-click="clickFn">
             </el-tree>
             <div style="position: fixed;bottom: 0;">
                 <div>
-                <span style="color:white;font-size:14px;margin-top:10px;">关注微信公众号"智慧消防服务"</span>
+                  <span style="color:white;font-size:14px;margin-top:10px;">关注微信公众号"智慧消防服务"</span>
                 </div>
                 <div style="width: 100%;margin-top:15px;" align="center" id="qrcode"></div>
                 <div style="margin-top:10px;">
-                <span style="color:white;font-size:14px;margin-top:10px;margin-left: 20px;">
-                    扫描二维码关注此区域
-                </span>
+                    <span style="color:white;font-size:14px;margin-top:10px;margin-left: 20px;">
+                        扫描二维码关注此区域
+                    </span>
                 </div>
             </div>
         </div>  

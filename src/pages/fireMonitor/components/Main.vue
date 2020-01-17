@@ -12,10 +12,11 @@
       <div id="mapContent-content">
         <div class="device-item" 
           v-for="item in deviceList" v-bind:key="item.deviceId" v-on:click="equipmentDetailsFn(item.deviceId)">
-          <span style="color:white;font-size:12px;">{{item.installNumber}}</span>
+          <span style="color:white;font-size:12px;width:105px;">{{item.installNumber}}</span>
           <button class="status" v-if="item.runStatusName=='门关闭'"></button>
           <button class="status" v-if="item.runStatusName=='正常'"></button>
           <button class="alarm"  v-if="item.runStatusName=='高液位报警'"></button>
+          <button class="alarm"  v-if="item.runStatusName=='设备开始自检'"></button>
           <button class="alarm"  v-if="item.runStatusName=='低压报警'"></button>
           <img src="../../../static/img/smokeDevice.jpg" style="width:100px;height:100px;
           margin-left:75px;margin-top:45px;"  v-if="item.shortTypeName=='烟感'">
@@ -39,6 +40,38 @@
       </div>
     </div>
     <RightCommon ref="child"></RightCommon>
+    <div>
+      <audio src="../../../static/warn2.mp3"
+        controls  style="display:none;" id="vd"></audio>
+        <el-dialog title="警报信息" :visible.sync="dialogTableVisible" width="500px" :before-close="handleClose">
+              <el-form ref="form" :model="form" label-width="100px">
+                  <el-form-item label="事件名称" style="margin-bottom: 0px;">
+                  <span style="margin-left:50px;">{{this.form.evenname}}</span>
+                  </el-form-item>
+                  <el-form-item label="发生时间" style="margin-bottom: 0px;">
+                  <span style="margin-left:50px;">{{this.form.evenData}}</span>
+                  </el-form-item>
+                  <el-form-item label="事件编号" style="margin-bottom: 0px;">
+                  <span style="margin-left:50px;">{{this.form.evenNum}}</span>
+                  </el-form-item>
+                  <el-form-item label="事件等级" style="margin-bottom: 0px;">
+                    <span style="margin-left:50px;">{{this.form.evenLeven}}</span>
+                  </el-form-item>
+                  <el-form-item label="设备类型" style="margin-bottom: 0px;">
+                  <span style="margin-left:50px;">{{this.form.deviceType}}</span>
+                  </el-form-item>
+                  <el-form-item label="设备编号" style="margin-bottom: 0px;">
+                  <span style="margin-left:50px;">{{this.form.deviceNum}}</span>
+                  </el-form-item>
+                  <el-form-item label="所属区域" style="margin-bottom: 0px;">
+                  <span style="margin-left:50px;">{{this.form.area}}</span>
+                  </el-form-item>
+                  <el-form-item label="详细地址" style="margin-bottom: 0px;">
+                  <span style="margin-left:50px;">{{this.form.address}}</span>
+                  </el-form-item>
+              </el-form>
+          </el-dialog> 
+        </div>
     <el-dialog title="设备详情" :visible.sync="equipmentDetails"  width="450px">
         <el-form ref="form" :model="form" label-width="100px">
             <el-form-item label="设备类型" style="margin-bottom: 0px;">
@@ -77,8 +110,8 @@
             <el-form-item label="下限报警值" style="margin-bottom: 0px;" v-if="this.deviceForm.deviceType=='压力计' || this.deviceForm.deviceType=='液位计'">
             <span style="margin-left:50px;">{{this.deviceForm.lowAlarm}}</span>
             </el-form-item>
-            <!-- <div id="deviceQrcode" style="width:100%;height:180px;margin-left:20px;"></div>
-            <div id="waterWave" style="margin-left:20px;width:400px;height:200px;margin-top:-40px;"></div> -->
+            <!-- <div id="deviceQrcode" style="width:100%;height:180px;margin-left:20px;"></div> -->
+            <div id="waterWave" style="margin-left:20px;width:400px;height:200px;margin-top:-40px;" v-if="this.deviceForm.deviceType=='压力计' || this.deviceForm.deviceType=='液位计'"></div>
         </el-form>
       </el-dialog>
   </div>
@@ -93,6 +126,7 @@ import LeftCommon from '../../../common/components/LeftCommon';
 import RightCommon from '../../../common/components/RightCommon';
 import WaterTank from '../../../common/components/ShowWaterTankCommon';
 import HydraulicFn from '../../../common/components/HydraulicFn';
+const wsUrl = 'ws://srv.shine-iot.com:8060/websocket';//web_socket相关的URL;
 export default {
   data() {
     return {
@@ -116,6 +150,7 @@ export default {
           upWarn:"",
           lowWarn:""
       },
+      dialogTableVisible:false,
       form: {
           evenname: '',
           evenData: '',
@@ -188,13 +223,11 @@ export default {
       })
     },
     equipmentDetailsFn(deviceId){
-      console.log("deviceId",deviceId);
       this.equipmentDetails=true;
       let this_=this;
       this.$http.get(`http://srv.shine-iot.com:8060/device/extval/${deviceId}`).
       then(function (response) {
           response=response.data.data;
-          console.log("response",response);
           this_.deviceForm.deviceType=response.dcTypeName
           this_.deviceForm.insertNum=response.installNumber;
           this_.deviceForm.deviceSn=response.deviceSN;
@@ -207,7 +240,101 @@ export default {
           this_.deviceForm.lowAlarm=response.lowAlarm+response.mainSensorUnitName;
           this_.deviceForm.upWarn=response.upWarn+response.mainSensorUnitName;
           this_.deviceForm.lowWarn=response.lowWarn+response.mainSensorUnitName;
+          this_.equipmentTrend(deviceId);
       })
+    },
+    equipmentTrend(deviceId){
+      let this_=this;
+      var data = qs.stringify({'id':deviceId});
+      let dataTime=[];
+      let dataCount=[];
+      this.$http.post("http://srv.shine-iot.com:8060/dev/msg/press/chart",data).
+      then(function (response) {
+        response.data.data.forEach(element => {
+            dataTime.push(this_.formatDate(element[0]));
+            dataCount.push(element[1]);
+        });
+         var myChart = this_.$echarts.init(document.getElementById("waterWave"));
+         myChart.setOption({
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data:dataTime,
+                axisLine:{
+                  lineStyle:{
+                    color:'#041B25',
+                    width:2,//这里是为了突出显示加上的
+                  }
+                }},
+            yAxis:{
+              type: 'value',
+              axisLine:{
+                lineStyle:{
+                  color:'#041B25',
+                  width:2,//这里是为了突出显示加上的
+                }
+              }},
+            series: [{
+              data:dataCount,
+              type: 'line',
+              smooth: true,
+              areaStyle: {
+                  normal: {
+                      color:"#115F6C"
+                  }
+              }
+            }]});
+      })
+     
+    },
+    formatDate(timestamp) { 
+      var date = new Date(parseInt(timestamp));//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+	    var Y = date.getFullYear() + '-';
+	    var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+	    var D = date.getDate() + ' ';
+	    var h = date.getHours() + ':';
+	    var m = date.getMinutes() + ':';
+	    var s = date.getSeconds();
+	    return Y + M + D + h + m + s;
+    },
+    estabConnectWithWS(wsUrl) {
+        const ws = new WebSocket(wsUrl);
+        ws.onopen = function (e) {
+          console.log('连接上 ws 服务端了');
+          ws.send(JSON.stringify({ flag: wsUrl, data: "Hello WebSocket!" }));
+        }
+        
+        ws.onmessage = (msg)=> { 
+            var music = document.getElementById("vd");//获取ID  
+            if(typeof JSON.parse(msg.data) == "object"){
+              let msgobj=JSON.parse(msg.data);
+              if(msgobj.eventLevel=="0"){
+                this.open1(msgobj.areaName,msgobj.deviceAddr,msgobj.deviceSN,msgobj.deviceTypeName,msgobj.eventTypeName);
+              }else{
+                music.play();
+                this.dialogTableVisible=true;
+                this.form.evenname=msgobj.eventTypeName;
+                this.form.evenData=this.formatDate(msgobj.eventTime);
+                this.form.evenNum=msgobj.eventId;
+                this.form.deviceType=msgobj.deviceTypeName;
+                this.form.deviceNum=msgobj.deviceSN;
+                this.form.area=msgobj.areaName;
+                this.form.evenLeven=msgobj.eventLevelName;
+                this.form.address=msgobj.deviceAddr;
+              }
+              this.$refs.child.initDevice();
+              this.$refs.child.initEven();
+            }
+        };
+
+        ws.onclose = function (e) {
+            console.log('ws 连接关闭了');
+        }
+    },
+    handleClose(done){
+      var audio = document.getElementById('vd');
+      audio.pause();
+      done();
     }
   },
   updated(){
@@ -220,6 +347,8 @@ export default {
   },
   mounted(){
     this.initDevceList();
+    this.estabConnectWithWS(wsUrl);
+    this.$parent.activeIndex2="2";
   }
 }
 </script>

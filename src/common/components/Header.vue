@@ -16,12 +16,6 @@
               <el-button type="primary">电气火灾</el-button>
               <el-button type="primary">消防用水</el-button>
         </el-drawer>
-        <!-- <el-button
-        plain @click="open1" 
-        style="margin-top:5px;margin-right:10px;">
-          预警警告
-        </el-button> -->
-        <!-- <el-button type="button" style="margin-right: 10px;" @click="dialogTableVisible = true">报警提示</el-button> -->
         <el-dialog title="事件详情" :visible.sync="dialogTableVisible" width="500px">
           <el-form ref="form" :model="form" label-width="100px">
             <el-form-item label="事件名称" style="margin-bottom: 0px;">
@@ -56,7 +50,7 @@
       </div>
       <div class="navigation">
         <el-menu
-          :default-active="activeIndex2"
+          :default-active="activeIndex"
           class="el-menu-demo"
           mode="horizontal"
           @select="handleSelect"
@@ -74,36 +68,12 @@
   export default {
       data(){
           return {
-              useName: 'admin',
+              useName: 'linchang',
               drawer: false,
               direction: 'ttb',
               activeIndex: '1',
               activeIndex2: '1',
-              tableData:[{
-                  number: '865820030763135',
-                  deviceName: '液压计',
-                  address: '上海市普陀区金沙江路 1518 弄',
-                  eventTyle:'低压报警',
-                  date:'2019-12-27'
-                }, {
-                  number: '865820030763135',
-                  deviceName: '液压计',
-                  address: '上海市普陀区金沙江路 1518 弄',
-                  eventTyle:'低压报警',
-                  date:'2019-12-27'
-                }, {
-                  number: '865820030763135',
-                  deviceName: '液压计',
-                  address: '上海市普陀区金沙江路 1518 弄',
-                  eventTyle:'低压报警',
-                  date:'2019-12-27'
-                }, {
-                  number: '865820030763135',
-                  deviceName: '液压计',
-                  address: '上海市普陀区金沙江路 1518 弄',
-                  eventTyle:'低压报警',
-                  date:'2019-12-27'
-              }],
+              tableData:[],
               form: {
                 name: '',
                 region: '',
@@ -120,25 +90,7 @@
           }
       },
       methods:{
-        open1() {
-            this.$notify({
-              title: '预警提示',
-              message:'尊敬的用户位于西佘山-山顶消防水库编号为865820030763135的液位计,发生低液位预警,当前值2.5996米',
-              type: 'warning',
-              duration: 0
-            });
-        },
-        open(){
-          this.$alert('这是一段内容', '标题名称', {
-            confirmButtonText: '确定',
-            callback: action => {
-              this.$message({
-                type: 'info',
-                message: `action: ${ action }`
-              });
-            }
-          });
-        },
+        open(){},
         handleSelect(key, keyPath) {
           if(key==1){
             this.$router.push({
@@ -159,7 +111,10 @@
           }
         }
       },
-      mounted(){}
+      props:['activeIndex123'],
+      mounted(){
+        this.activeIndex=this.activeIndex123;
+      }
   }
 </script>
 
